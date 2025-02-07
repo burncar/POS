@@ -1,0 +1,493 @@
+﻿@using System.Text.Json
+@model POS.Web.ViewModel.Inventory.InventoryProductVmForIndex
+
+<div class="row">
+  <div class="col-6">
+      <div class="w-100 card border-0 p-1">
+    <div class="card-header  bg-success bg-gradient ml-0 py-1">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-1">Product List</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body border p-2">
+        <div class="row pb-3">
+
+            
+                <div class="row">
+                    <div class="col-12">
+                        <a onclick ='btnSearch()' class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Advance Search
+                        </a>
+                        <input id="searchString" />
+                           
+                    </div>
+                    
+                </div>
+        </div>
+                <partial name="_RenderedTable" model="Model" />
+     
+    </div>
+</div>
+  </div>
+    <div class="col-6">
+        <partial name="_itemList" model="Model" />
+    </div>
+  
+</div>
+
+@section Scripts {
+   
+
+    <script>
+        var renderedFromInventoryTable = @Html.Raw(Json.Serialize(Model.InventoryProductVmList));
+        var renderedFromtables = @Html.Raw(Json.Serialize(Model));
+        const _scriptrenderedTable = JSON.parse(JSON.stringify(renderedFromInventoryTable));
+        const findProductById = (id) => {
+            return _scriptrenderedTable.find(item => item.inventoryProductDto.inventoryProductId === id);
+        };
+
+        var _prodRendereds = renderedFromtables;
+       
+       
+      
+        function fnLoadItemList(prods) 
+        {
+            console.log(prods.product.vatable);
+            
+            var existingProduct = _prodRendereds.productRendered.find(item => item.ProductId === prods.inventoryProductId);
+                var prodRendered = 
+                {
+                    Barcode: prods.product.barCode,
+                    SmallQuantity: prods.productPackaging.itemPerPiece,
+                    BigQuantity: 1,
+                    PerItemPrice: prods.product.wholeSellingPrice,
+                    TotalItemPrice: prods.product.wholeSellingPrice * 1,
+                    ProductId: prods.inventoryProductId,
+                    Description: prods.product.productDescription,
+                    Vatable: prods.product.vatable
+                }
+
+            //productRendereds = productRendereds.concat(prodRendered);
+            if (existingProduct) {
+                if (existingProduct.BigQuantity >= prods.quantity) {
+                    return;
+                }
+                // Update quantities and total prices if the product exists
+                existingProduct.BigQuantity += prodRendered.BigQuantity; // Update quantity
+                existingProduct.TotalItemPrice = (existingProduct.BigQuantity) * prodRendered.PerItemPrice;
+
+            } else {
+                // If it doesn't exist, add the new product
+                _prodRendereds.productRendered.push(prodRendered);
+             
+            }
+
+            const url = `@Url.Action("ActionName", "Controllername")`;
+            callAjax("POST", "GetItemList", "Home", _prodRendereds, url);
+
+           
+        }
+        function searchBarcode(barcode) 
+        {
+            var existingProduct = _prodRendereds.productRendered.find(item => item.Barcode === barcode);
+            var inventoryExistingProduct = renderedFromInventoryTable.find(a => a.inventoryProductDto.product.barCode === barcode)
+            //console.log(inventoryExistingProduct)
+            if (existingProduct) {
+                console.log(existingProduct.BigQuantity);
+                if (existingProduct.BigQuantity < inventoryExistingProduct.inventoryProductDto.quantity) {
+                    existingProduct.BigQuantity += 1; // Update quantity
+                    existingProduct.TotalItemPrice = (existingProduct.BigQuantity) * existingProduct.PerItemPrice;
+                    const url = `@Url.Action("ActionName", "Controllername")`;
+                    callAjax("POST", "GetItemList", "Home", _prodRendereds, url)
+                }
+               
+            } else {
+
+                    if (inventoryExistingProduct) {
+                        if (inventoryExistingProduct.inventoryProductDto.quantity > 0 ) {
+                            var prodRendered =
+                            {
+                                Barcode: inventoryExistingProduct.inventoryProductDto.product.barCode,
+                                SmallQuantity: inventoryExistingProduct.inventoryProductDto.productPackaging.itemPerPiece,
+                                BigQuantity: 1,
+                                PerItemPrice: inventoryExistingProduct.inventoryProductDto.product.wholeSellingPrice,
+                                TotalItemPrice: inventoryExistingProduct.inventoryProductDto.product.wholeSellingPrice * 1,
+                                ProductId: inventoryExistingProduct.inventoryProductDto.inventoryProductId,
+                                Description: inventoryExistingProduct.inventoryProductDto.product.productDescription,
+                                Vatable: inventoryExistingProduct.inventoryProductDto.product.vatable
+                            }
+                            _prodRendereds.productRendered.push(prodRendered);
+                            const url = `@Url.Action("ActionName", "Controllername")`;
+                            callAjax("POST", "GetItemList", "Home", _prodRendereds, url);
+                        }
+                    }
+              
+
+            }
+
+        }
+        
+        function btnDeleteDiscount(deleteId) 
+        {
+            if(deleteId > 0){
+                _prodRendereds.productRendered = _prodRendereds.productRendered.filter(item => item.ProductId !== deleteId);
+                const url = `@Url.Action("ActionName", "Controllername")`;
+                callAjax("POST", "GetItemList", "Home", _prodRendereds, url);
+            }
+        }
+
+        function btnPrint(modelData) {
+            _prodRendereds = modelData;
+            //callAjax("POST", "Create", "Home", modelData)
+            // if (_prodRendereds.productRendered.length != 0) {
+
+            //     callAjax("POST", "Create", "Home", modelData)
+            //     _prodRendereds.productRendered.length = 0;
+            // }
+        }
+        function btnPrintSubmit() 
+        {
+            if (_prodRendereds.productRendered.length != 0) {
+                const urlTable = `@Url.Action("ActionName", "Controllername")`;
+                callAjaxRefreshTable("Post", "CreateIndexRefresh", "Home", _prodRendereds, urlTable)
+
+                const url = `@Url.Action("ActionName", "Controllername")`;
+                callAjaxPrintSubmit("POST", "Create", "Home", _prodRendereds, url);
+                _prodRendereds.productRendered.length = 0;
+
+            }
+        }
+        function btnClear() {
+            if (_prodRendereds.productRendered.length != 0) {
+                _prodRendereds.productRendered.length = 0;
+                const url = `@Url.Action("ActionName", "Controllername")`;
+                callAjax("POST", "GetItemList", "Home", _prodRendereds, url);
+            }
+        }
+        function btnSearch() {
+            const pageNumber = 1;
+            const pageSize = $('#rowsPerPages').val();
+            const searchString = $('#searchString').val();
+
+            const url = `@Url.Action("ActionName", "Controllername")?pageNumber=${pageNumber}&pageSize=${pageSize}&searchString=${encodeURIComponent(searchString)}`;
+
+            callAjaxTable("Get", "PartialIndex", "Home", url);
+        }
+
+        function rowsPerPage() {
+            var currentPage = parseInt(getUrlParameter('pageNumber')) || 1;
+            const pageSize = $('#rowsPerPages').val();
+            const searchString = $('#searchString').val();
+            console.log("get" + pageSize);
+            const url = `@Url.Action("ActionName", "Controllername")?pageNumber=${currentPage}&pageSize=${pageSize}&searchString=${encodeURIComponent(searchString)}`;
+            callAjaxTable("Get", "PartialIndex", "Home", url);
+        }
+        function nextPage(currentPage) {
+            //var currentPage = parseInt(getUrlParameter('pageNumber')) || 1;
+            currentPage += 1;
+            const pageSize = $('#rowsPerPages').val();
+            const searchString = $('#searchString').val();
+            const url = `@Url.Action("ActionName", "Controllername")?pageNumber=${currentPage}&pageSize=${pageSize}&searchString=${encodeURIComponent(searchString)}`;
+            callAjaxTable("Get", "PartialIndex", "Home", url);
+        }
+        function prevPage(currentPage) {
+            //var currentPage = parseInt(getUrlParameter('pageNumber')) || 1;
+           
+            currentPage -= 1;
+            const pageSize = $('#rowsPerPages').val();
+            const searchString = $('#searchString').val();
+            const url = `@Url.Action("ActionName", "Controllername")?pageNumber=${currentPage}&pageSize=${pageSize}&searchString=${encodeURIComponent(searchString)}`;
+            callAjaxTable("Get", "PartialIndex", "Home", url);
+        }
+
+        var globalId = 0;
+        var globalQuantity = 0;
+        function setModalContent(obj){
+            const inventoryProd = findProductById(obj.productId);
+          
+            $('#modalQuantity').val(obj.bigQuantity);
+            globalId = obj.productId;
+
+            globalQuantity = JSON.stringify(inventoryProd.inventoryProductDto.quantity);
+           
+        }
+        function btnSaveChanges(){
+            var existingProduct = _prodRendereds.productRendered.find(item => item.ProductId === globalId);
+            console.log(globalQuantity + " " + $('#modalQuantity').val());
+            if (globalQuantity < parseInt($('#modalQuantity').val())) {
+                console.log("triggered");
+                return;
+            }
+           
+                if (existingProduct) {
+                    existingProduct.BigQuantity = parseInt($('#modalQuantity').val());
+                    existingProduct.TotalItemPrice = (existingProduct.BigQuantity) * existingProduct.PerItemPrice;
+                }
+          
+            const url = `@Url.Action("ActionName", "Controllername")`;
+            callAjax("POST", "GetItemList", "Home", _prodRendereds,url);
+        }
+
+        
+        var toggleDiscount = _prodRendereds.isDiscount;
+        function btnDiscountToggle() {
+           
+            if(toggleDiscount == false){
+                _prodRendereds.isDiscount = true;
+                toggleDiscount = _prodRendereds.isDiscount;
+
+                $('#btnDiscount').removeClass('btn-warning').addClass('btn-primary');
+                $('#btnDiscount').text('Discount Enable');
+                $('#hiddenDiscountSelect').removeAttr('hidden');
+                $("#DiscountTH").removeAttr('hidden');
+                $(".rowCheckbox").removeAttr('hidden');
+            }else{
+                _prodRendereds.isDiscount = false;
+                toggleDiscount = _prodRendereds.isDiscount;
+
+                $('#btnDiscount').removeClass('btn-primary').addClass('btn-warning');
+                $('#btnDiscount').text('Discount Disable');
+                $('#hiddenDiscountSelect').attr('hidden', true);
+
+                const checkboxes = document.querySelectorAll('.rowCheckbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+
+                $("#selectAll").prop("checked", false);
+
+                $("#DiscountTH").attr('hidden', true);
+                $(".rowCheckbox").attr('hidden', true);
+
+                _prodRendereds.productRendered
+                    .forEach(item => {
+                        item.isChecked = false;
+                    });
+                _prodRendereds.isDiscount = false;
+                _prodRendereds.checkAll = false;
+                const url = `@Url.Action("ActionName", "Controllername")`;
+                callAjax("POST", "GetItemList", "Home", _prodRendereds, url);
+            }
+
+        }
+        function toggleCheckboxes(selectAllCheckbox) {
+
+            const checkboxes = document.querySelectorAll('.rowCheckbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+                console.log(checkbox.checked);
+                if (checkbox.checked == true) {
+                        isPost = true;
+                        _prodRendereds.checkAll = true;
+                    }else if(checkbox.checked == false){
+
+                        isPost = false;
+                        _prodRendereds.checkAll = false;
+                    console.log(isPost + " " + _prodRendereds.checkAll);
+                      
+                    }
+            });
+      
+            if (isPost) {
+                _prodRendereds.productRendered
+                    .forEach(item => {
+                        item.isChecked = true;
+                    });
+               
+            }else{
+                _prodRendereds.productRendered
+                    .forEach(item => {
+                        item.isChecked = false;
+                    });
+
+            }
+            const url = `@Url.Action("ActionName", "Controllername")`;
+            callAjax("POST", "GetItemList", "Home", _prodRendereds, url);
+
+        }
+
+        function productDiscountTypeSelect() 
+        {
+            _prodRendereds.productDiscountTypeId = $('#productDiscountTypeSelectId').val();
+            const url = `@Url.Action("ActionName", "Controllername")`;
+            callAjax("POST", "GetItemList", "Home", _prodRendereds, url);
+        }
+        function selectedDataDiscount(productDiscountId) {
+
+            var existingProductDiscount = _prodRendereds.productRendered.find(item => item.ProductId === productDiscountId);
+
+            console.log("check" + existingProductDiscount);
+            if (existingProductDiscount.isChecked) {
+                existingProductDiscount.isChecked = false;
+                const url = `@Url.Action("ActionName", "Controllername")`;
+                callAjax("POST", "GetItemList", "Home", _prodRendereds, url);
+            }else{
+                if (existingProductDiscount) {
+                    existingProductDiscount.isChecked = true;
+                    const url = `@Url.Action("ActionName", "Controllername")`;
+                    callAjax("POST", "GetItemList", "Home", _prodRendereds,url);
+                }
+            }
+        }
+     
+
+        let scanTimeout;
+        let scannedValue = '';
+        $(document).on('keydown', function (event) {
+            // Reset the timeout on every keypress
+            clearTimeout(scanTimeout);
+
+            // If the key is not a control key (like Shift, Ctrl, etc.)
+            if (event.key.length === 1) {
+                scannedValue += event.key; // Append the scanned character
+
+                // Set a timeout to clear the scannedValue after a short delay
+                scanTimeout = setTimeout(function () {
+                    // Trigger the search function with the scanned value
+                    if (scannedValue) {
+                        searchBarcode(scannedValue);
+                        scannedValue = ''; // Clear the scanned value after searching
+                    }
+                }, 100); // Adjust the timeout as needed
+            }
+        });
+
+        //calling of ajax
+        function callAjax(type, _actionName, _controllername, _prodRendereds,url) {
+           
+            $.ajax({
+                type: type,
+                url: url.replace("ActionName", _actionName).replace("Controllername", _controllername),
+                data: JSON.stringify(_prodRendereds),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                  
+                    $("#itemProductList").empty();
+                    $("#itemProductList").html(response);
+                },
+                error: function (response) {
+                    console.error(response);
+                    alert("Error: " + response.responseText);
+                }
+            });
+        }
+        function callAjaxPrintSubmit(type, _actionName, _controllername, _prodRendereds,url) {
+
+            $.ajax({
+                type: type,
+                url: url.replace("ActionName", _actionName).replace("Controllername", _controllername),
+                data: JSON.stringify(_prodRendereds),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+
+                    $("#itemProductList").empty();
+                    $("#itemProductList").html(response);
+                },
+                error: function (response) {
+                    console.error(response);
+                    alert("Error: " + response.responseText);
+                }
+            });
+        }
+        function callAjaxRefreshTable(type, _actionName, _controllername, _prodRendereds, url) {
+            $.ajax({
+                type: type,
+                url: url.replace("ActionName", _actionName).replace("Controllername", _controllername),
+                data: JSON.stringify(_prodRendereds),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    $("#_tableList").empty();
+                    $("#_tableList").html(response);
+                },
+                error: function (response) {
+                    console.error(response);
+                    alert("Error: " + response.responseText);
+                }
+            });
+        }
+        function callAjaxTable(type, _actionName, _controllername,url) {
+       
+            $.ajax({
+                type: type,
+                url: url.replace("ActionName", _actionName).replace("Controllername", _controllername),
+                data: JSON.stringify(searchString),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    $("#_tableList").empty();
+                    $("#_tableList").html(response);
+                },
+                error: function (response) {
+                    console.error(response);
+                    alert("Error: " + response.responseText);
+                }
+            });
+        }
+        function callAjaxBarcodeTable(type, _actionName, _controllername, url, dataBody) {
+
+            $.ajax({
+                type: type,
+                url: url.replace("ActionName", _actionName).replace("Controllername", _controllername),
+                data: JSON.stringify(dataBody),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    $("#itemProductList").empty();
+                    $("#itemProductList").html(response);
+                },
+                error: function (response) {
+                    console.error(response);
+                    alert("Error: " + response.responseText);
+                }
+            });
+        }
+        
+      
+    </script>
+
+<script>
+    $(document).ready(function () 
+    {
+
+        var searchStringModel = @Html.Raw(Json.Serialize(Model.searchString));
+        console.log(searchStringModel);
+        if (searchStringModel != "null") {
+            $('#searchString').val(searchStringModel);
+        }
+
+
+        $('#rowsPerPage').change(function () {
+            var selectedRows = $(this).val();
+            // Redirect to the index action with the selected rows per page
+            window.location.href = '@Url.Action("PartialIndex", "Home")?pageSize=' + selectedRows + '&searchString=' + $('#searchString').val();
+        });
+
+        // Optional: Handling Prev and Next buttons
+        $('#prevPage').click(function () {
+            var currentPage = parseInt(getUrlParameter('pageNumber')) || 1;
+            window.location.href = '@Url.Action("PartialIndex", "Home")?pageNumber=' + (currentPage - 1) + '&pageSize=' + $('#rowsPerPage').val() + '&searchString=' + $('#searchString').val();
+        });
+
+        $('#nextPage').click(function () {
+            // Logic to handle going to the next page
+            var currentPage = parseInt(getUrlParameter('pageNumber')) || 1;
+            window.location.href = '@Url.Action("PartialIndex", "Home")?pageNumber=' + (currentPage + 1) + '&pageSize=' + $('#rowsPerPage').val() + '&searchString=' + $('#searchString').val();
+        });
+
+        $('#btnSearchs').click(function () {
+            // Logic to handle going to the next page
+            var currentPage = parseInt(getUrlParameter('pageNumber')) || 1;
+            window.location.href = '@Url.Action("PartialIndex", "Home")?pageNumber=' + (1) + '&pageSize=' + $('#rowsPerPage').val() + '&searchString=' + $('#searchString').val();
+        });
+
+    });
+
+    // Function to get URL parameters
+    function getUrlParameter(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        var results = regex.exec(location.search);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+</script>
+}

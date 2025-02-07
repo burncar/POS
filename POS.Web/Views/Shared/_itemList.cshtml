@@ -1,0 +1,201 @@
+﻿@* @model List<POS.Domain.Entitties.ProductRendered> *@
+    @model POS.Web.ViewModel.Inventory.InventoryProductVmForIndex
+<div id="itemProductList">
+    <div class="row">
+      
+            <div class="w-100 card border-0 p-1">
+                <div class="card-header  bg-success bg-gradient ml-0 py-1">
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <h2 class="text-white py-1">Total Item List</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body border p-2">
+
+                    <div class="row pb-3">
+                    <div class="row">
+                        @if (Model.IsDiscount)
+                        {
+                            <button id="btnDiscount" class="btn btn-primary" onclick="btnDiscountToggle()">Discount Enable</button>
+                        }
+                        else
+                        {
+                            <button @(Model.ProductRendered.Count() > 0 ? "" : "hidden")  id="btnDiscount" class="btn btn-warning" onclick="btnDiscountToggle()">Discount Disable</button>
+                        }
+                    </div>
+                    </div>
+
+                <div class="form-floating py-1" id="hiddenDiscountSelect" @(Model.IsDiscount ? "" : "hidden")>
+                    <select onchange="productDiscountTypeSelect()" id="productDiscountTypeSelectId" asp-for="@Model.ProductDiscountTypeId" asp-items="@Model.ProductDiscountTypeList"
+                                class="form-select border shadow">
+                            <option disabled selected>--Select Discount Type--</option>
+                        </select>
+                        <label class="ms-2">Discount Type</label>
+                        <span asp-validation-for="ProductDiscountTypeId" class="text-danger"></span>
+                    </div>
+              
+               
+
+                    <div class="table-responsive" style="max-height: 400px; overflow: auto;">
+                        <table class="table table-bordered table-striped">
+                            <thead class="text-nowrap">
+                                <tr>
+                                <th @(Model.IsDiscount ? "" : "hidden") id="DiscountTH">
+                                    <input @(Model.CheckAll ? "checked" : false) type="checkbox" id="selectAll" onclick="toggleCheckboxes(this)" />
+                                    <label for="selectAll">All</label>
+                                </th>
+                                    <th>Barcode</th>
+                                    
+                                    <th>
+                                        Quantity
+                                    </th>
+                                    <th>Price</th>
+                                    <th>Total</th>
+                                    <th>Description</th>
+                                    <th>Discount</th>
+                                   
+                                </tr>
+                            </thead>
+                            <tbody class="text-nowrap position-relative">
+
+                                @foreach (var obj in Model.ProductRendered)
+                                {
+
+                                    <tr>
+                                    <td>
+                                        <input @(Model.IsDiscount ? "" : "hidden") type="checkbox" id="@obj?.Id" class="rowCheckbox"
+                                        @(obj.IsChecked ? "checked" : "")
+                                        onchange='selectedDataDiscount(@Html.Raw(Json.Serialize(obj.ProductId)))' />
+
+                                        <button class="btn btn-danger" style="padding:0.2rem" onclick='btnDeleteDiscount(@Html.Raw(Json.Serialize(obj.ProductId)))'><i class="bi bi-trash"></i></button>
+                                    </td>
+                                        <td>@obj?.Barcode</td>
+                                        <td>
+                                        <a href="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                                           onclick='setModalContent(@Html.Raw(Json.Serialize(obj)))'>
+                                           
+                                                @obj?.BigQuantity
+                                        </a>
+                                        </td>
+                                        <td>@obj?.PerItemPrice</td>
+                                        <td>@obj?.TotalItemPrice</td>
+                                        <td>@obj?.Description</td>
+                                        <td>@obj?.Discount</td>
+        
+                                    </tr>
+                                }
+                            <tr>
+                                <td></td>
+                                <td>Sales Total</td>
+                                <td></td>
+                                <td></td>
+                                <td>@Model.GrandTotal.ToString("F2")</td>
+                                <td>@(Model.IsDiscount ? "Total Discount":"")</td>
+                                <td>@(Model.IsDiscount ? Model.TotalDiscounts.ToString("F2") : "")</td>
+                            </tr>
+                            @* @if (Model.IsDiscount) { *@
+                            <tr>
+                                <td></td>
+                                <td>Less Vat</td>
+                                <td></td>
+                                <td></td>
+                                <td>@Model.TotalVatWithDiscount.ToString("F2")</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>Amount Net Of Vat</td>
+                                <td></td>
+                                <td></td>
+                                <td>@Model.TotalAmountNetOfVat.ToString("F2")</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>Total Less Discount</td>
+                                <td></td>
+                                <td></td>
+                                <td>@Model.NetTotalWithDiscount.ToString("F2")</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>Vatable</td>
+                                <td></td>
+                                <td></td>
+                                <td>@Model.TotalVatable.ToString("F2")</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>VAT Exempt Sale</td>
+                                <td></td>
+                                <td></td>
+                                <td>@Model.TotalVatableExempt.ToString("F2")</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>VAT</td>
+                                <td></td>
+                                <td></td>
+                                <td>@Model.TotalVatNoDiscount.ToString("F2")</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>Total Sale</td>
+                                <td></td>
+                                <td></td>
+                                <td>@Model.NetTotalWithDiscount.ToString("F2")</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                          
+                            @* } *@
+                      
+                           
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-2"> 
+                        <div class="w-45" btn-group" role="group">
+                           @*  <button type="button" data-bs-toggle="modal" data-bs-target="#modalPrint" class="btn btn-success btn-block"> *@
+                            <button type="button" data-bs-toggle="modal" data-bs-target="#modalPrint" onclick='btnPrint(@Html.Raw(Json.Serialize(Model)))' class="btn btn-success btn-block">
+                                Print
+                            </button>
+                        </div>
+                        </div>
+                        <div class="col-6">
+                        <div class="w-45" btn-group" role="group">
+                            <button type="button" onclick='btnClear()' class="btn btn-success btn-block">
+                                Clear List
+                            </button>
+                        </div>
+                        </div>
+                    </div>
+              
+                </div>
+            </div>
+     
+      
+    </div>
+
+
+</div>
+<div>
+    <partial name="_modal" />
+</div>
+<div>
+    <partial name="_modalPrint" />
+</div>
+
+

@@ -1,0 +1,60 @@
+﻿@model POS.Domain.Entitties.ProductDiscountType
+
+
+<div class="w-100 card border-0 p-4">
+    <div class="card-header bg-success bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">Update Discount Type</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body border p-4">
+        <form method="post" class="row" enctype="multipart/form-data">
+            <input asp-for="Id" hidden />
+            <div class="col-10">
+                <div class="p-3">
+                    <div class="form-floating py-1 col-12">
+                        <select class="form-select mx-2" id="discountIdentity" asp-for="DiscountIdentity">
+                            <option>SC/PWD</option>
+                            <option>CorpLessVat</option>
+                            <option>CorpWithVat</option>
+                        </select>
+                        <label class="ms-2">Discount Identity</label>
+                        <span asp-validation-for="DiscountIdentity" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating py-1 col-12">
+                        <input asp-for="DiscountType" class="form-control border shadow" />
+                        <label asp-for="DiscountType" class="ms-2"></label>
+                        <span asp-validation-for="DiscountType" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating py-1 col-12">
+                        <input asp-for="DiscountRate" class="form-control border shadow" />
+                        <label asp-for="DiscountRate" class="ms-2"></label>
+                        <span asp-validation-for="DiscountRate" class="text-danger"></span>
+                    </div>
+
+                    <div class="row pt-2">
+                        <div class="col-6 col-md-3">
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="bi bi-check-circle"></i> Update
+                            </button>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <a asp-controller="ProductDiscountType" asp-action="Index" class="btn btn-secondary w-100">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@* @section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+} *@

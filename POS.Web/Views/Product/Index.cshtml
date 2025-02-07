@@ -1,0 +1,163 @@
+﻿@model POS.Web.ViewModel.ProductVMforIndex
+
+<div class="w-100 card border-0 p-1">
+    <div class="card-header  bg-success bg-gradient ml-0 py-1">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-1">Product List</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body border p-2">
+        <div class="row pb-3">
+
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-6">
+                        <a id="btnSearch" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Advance Search
+                        </a>
+                        <input id="searchString" />
+                    </div>
+                    <div class="col-6 text-end">
+                        <a asp-controller="Product" asp-action="Create" class="btn btn-secondary">
+                            <i class="bi bi-plus-circle"></i> Create New Product
+                        </a>
+                    </div>
+                </div>
+                
+            </div>
+      
+       
+         
+        </div>
+        <div class="table-responsive" style="max-height: 400px; overflow: auto;">
+        <table class="table table-bordered table-striped">
+            <thead class="text-nowrap">
+                <tr>
+                    <th>Product Brand</th>
+                    <th>Product Type</th>
+                    <th>
+                        Barcode
+                    </th>
+                    <th>Product Description</th>
+                    <th>RE-Order Level</th>
+                    <th>Whole Selling Price</th>
+                    <th>PerPiece Selling Price</th>
+                    <th>Vatable</th>
+                 @*    <th>Date Purchased</th>
+                    <th>Date Expiration</th> *@
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody class="text-nowrap position-relative">
+               
+                @foreach (var obj in Model.ProductVMList)
+
+                {
+                   
+                    <tr>
+                        <td>@obj?.ProductBrand.BrandName</td>
+                        <td>@obj?.ProductType.Type</td>
+                        <td>@obj?.Product.BarCode</td>
+                        <td>@obj?.Product.ProductDescription</td>
+                        <td>@obj?.Product.ReorderLevel</td>
+                        <td>@obj?.Product.WholeSellingPrice</td>
+                        <td>@obj?.Product.PerPieceSellingPrice</td>
+                        <td>@((bool)obj?.Product.Vatable ? "Yes" : "No")</td>
+                       @*  <td>@obj?.Product.DatePurchased</td>
+                        <td>@obj?.Product.ExpirationDate</td> *@
+                        <td>
+                            <div class="w-75 btn-group" role="group">
+                                <a asp-controller="Product" asp-action="Update" asp-route-ProductId="@obj.Product.Id"
+                                   class="btn btn-success mx-2">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </a>
+                                <a asp-controller="Product" asp-action="Delete" asp-route-ProductId="@obj.Product.Id"
+                                   class="btn btn-danger mx-2">
+                                    <i class="bi bi-trash-fill"></i> Delete
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                  
+                }
+            </tbody>
+        </table>
+        </div>
+         @* paging *@
+        <div>
+            <div class="d-flex mx-5 justify-content-end align-items-center">
+                <div>Rows per page: </div>
+                <div>
+                <select class="form-select mx-2" id="rowsPerPage" asp-for="pageSize"> 
+                    <option>10</option>
+                    <option>20</option>
+                    <option>30</option>
+                </select>
+                </div>
+                <div class="mx-2"> @(Model.pageSize * Model.pageNumber >= Model.totalRecords ? " "+Model.totalRecords : " "+Model.pageSize * Model.pageNumber) of @(Model.totalRecords)</div>
+                <button id="prevPage"
+                    @(Model.pageNumber == 1 ? "disabled" : "")
+                    class="btn btn-outline-primary px-3 mx-2"
+                    >
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button id="nextPage"
+                    @(Model.pageNumber * Model.pageSize >= Model.totalRecords ? "disabled" : "")
+                    class="btn btn-outline-primary px-3 mx-2"
+                    >
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+
+        var searchStringModel = @Html.Raw(Json.Serialize(Model.searchString));
+        console.log(searchStringModel);
+        if (searchStringModel != "null") {
+            $('#searchString').val(searchStringModel);
+            }
+       
+
+        $('#rowsPerPage').change(function() {
+            var selectedRows = $(this).val();
+            // Redirect to the index action with the selected rows per page
+            window.location.href = '@Url.Action("Index", "Product")?pageSize=' + selectedRows + '&searchString=' + $('#searchString').val();
+        });
+
+        // Optional: Handling Prev and Next buttons
+        $('#prevPage').click(function() {
+            // Logic to handle going to the previous page
+            // You might want to update a pageNumber variable or similar
+            var currentPage = parseInt(getUrlParameter('pageNumber')) || 1;
+            window.location.href = '@Url.Action("Index", "Product")?pageNumber=' + (currentPage - 1) + '&pageSize=' + $('#rowsPerPage').val() + '&searchString=' + $('#searchString').val();
+        });
+
+        $('#nextPage').click(function() {
+            // Logic to handle going to the next page
+            var currentPage = parseInt(getUrlParameter('pageNumber')) || 1;
+            window.location.href = '@Url.Action("Index", "Product")?pageNumber=' + (currentPage + 1) + '&pageSize=' + $('#rowsPerPage').val() + '&searchString=' + $('#searchString').val();
+        });
+
+        $('#btnSearch').click(function () {
+            // Logic to handle going to the next page
+            var currentPage = parseInt(getUrlParameter('pageNumber')) || 1;
+            window.location.href = '@Url.Action("Index", "Product")?pageNumber=' + (1) + '&pageSize=' + $('#rowsPerPage').val() + '&searchString=' + $('#searchString').val();
+        });
+
+    });
+
+    // Function to get URL parameters
+    function getUrlParameter(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        var results = regex.exec(location.search);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+</script>

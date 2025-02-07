@@ -1,0 +1,147 @@
+﻿@using POS.Web.ViewModel.Inventory
+@model InventoryProductVm
+
+<div class="w-100 card border-0 p-4">
+    <div class="card-header bg-success bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">Create Inventory Product</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body border p-4">
+        <form method="post" class="row" enctype="multipart/form-data">
+            <div class="p-3">
+                @* <div asp-validation-summary="All"></div>  *@
+                <div class="form-floating py-1 col-12">
+                    <select id="productListSelect" asp-for="@Model.InventoryProduct.ProductId"  asp-items="@Model.ProductList"
+                            class="form-select border shadow">
+                        <option disabled selected>--Select Product--</option>
+                    </select>
+                    <label class="ms-2">Product Brand</label>
+                    @* <span asp-validation-for="Product" class="text-danger"></span> *@
+                </div>
+
+
+                <div class="form-floating py-1 col-12">
+                    <select id="productPackagingSelect" asp-for="@Model.InventoryProduct.ProductPackagingId" asp-items="@Model.ProductPackagingList"
+                            class="form-select border shadow">
+                        <option disabled selected>--Select Packaging List Name--</option>
+                    </select>
+                    <label class="ms-2">Product Type</label>
+                    <span asp-validation-for="InventoryProduct.ProductPackagingId" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="InventoryProduct.Quantity" class="form-control border shadow" />
+                    <label asp-for="InventoryProduct.Quantity" class="ms-2"></label>
+                    <span asp-validation-for="InventoryProduct.Quantity" class="text-danger"></span>
+                </div>
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="InventoryProduct.WholePrice" id="wholePrice" class="form-control border shadow" />
+                    <label asp-for="InventoryProduct.WholePrice" class="ms-2"></label>
+                    <span asp-validation-for="InventoryProduct.WholePrice" class="text-danger"></span>
+                </div>
+                <div class="form-floating py-1 col-12">
+                    <input disabled id="perPiecePrice" class="form-control border shadow" />
+                    <label asp-for="InventoryProduct.PerPiecePrice" class="ms-2"></label>
+                </div>
+              
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="InventoryProduct.ExpirationDate" class="form-control border shadow" />
+                    <label asp-for="InventoryProduct.ExpirationDate" class="ms-2"></label>
+                    <span asp-validation-for="InventoryProduct.ExpirationDate" class="text-danger"></span>
+                </div>
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="InventoryProduct.DatePurchased" class="form-control border shadow" />
+                    <label asp-for="InventoryProduct.DatePurchased" class="ms-2"></label>
+                    <span asp-validation-for="InventoryProduct.DatePurchased" class="text-danger"></span>
+                </div>
+              @*   <div class="form-floating py-1 col-12">
+                    <input asp-for="InventoryProduct.ItemPerUnit" class="form-control border shadow" />
+                    <label asp-for="InventoryProduct.ItemPerUnit" class="ms-2"></label>
+                    <span asp-validation-for="InventoryProduct.ItemPerUnit" class="text-danger"></span>
+                </div> *@
+
+                @*     <div class="form-floating py-1 col-12">
+                <input asp-for="ImageUrl" hidden class="form-control border shadow" />
+                <input asp-for="Image" class="form-control border shadow" />
+                <label asp-for="ImageUrl" class="ms-2 "></label>
+                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                </div> *@
+                <div class="row pt-2">
+                    <div class="col-6 col-md-3">
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-check-circle"></i> Create
+                        </button>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <a asp-controller="InventoryProduct" asp-action="Index" class="btn btn-secondary w-100">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+            let quantity = 0;
+             $('#productPackagingSelect').on('change', function() {
+                 var selectedValue = $(this).find(':selected').text();
+                 var parts = selectedValue.split('-'); // Split the string
+                        
+                if (parts.length > 1) { // Check if there's a second part
+                    quantity = parts[1].trim(); // Get the second part and trim whitespace
+                    console.log("Quantity: " + quantity);
+                } else {
+                    console.log("Selected value does not contain a hyphen.");
+                }
+            });
+           $('#wholePrice').on('input', function() {
+                computePrice(quantity);
+            });
+
+                function computePrice(quantity) {
+
+                const wholePrice = parseFloat($('#wholePrice').val()) || 0;
+                console.log(wholePrice+" "+quantity)
+                const perPiecePrice = wholePrice  / quantity;
+
+            $('#perPiecePrice').val(perPiecePrice.toFixed(2)); // Format to 2 decimal places
+            }
+        //  console.log(productBrandTypes)
+
+        //     $('#productBrandSelect').change(function () {
+
+        //     var productBrandId = $(this).val();
+        //         $('#productBrandTypeSelect').empty().append('<option disabled selected>--Select Brand Name--</option>');
+
+        //     // Filter the brands based on the selected product type
+        //     var filteredBrandTypes = productBrandTypes.filter(function (brand) {
+
+        //             return brand.productBrandId == productBrandId;
+        //     });
+
+        //         console.log(filteredBrandTypes)
+
+
+        //     // Populate the brand select with filtered results
+        //         $.each(filteredBrandTypes, function (index, brandType) {
+        //             $('#productBrandTypeSelect').append($('<option>', {
+        //             value: brandType.value,
+        //             text: brandType.text
+        //         }));
+        //     });
+        // });
+    });
+</script>

@@ -1,0 +1,86 @@
+﻿@model POS.Web.ViewModel.Inventory.InventoryProductVm
+
+<div class="w-100 card border-0 p-4">
+    <div class="card-header bg-success bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">Update Product Brand Type</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body border p-4">
+        <form method="post" class="row" enctype="multipart/form-data">
+            <input asp-for="InventoryProduct.Id" hidden />
+
+            <div class="col-10">
+                <div class="p-3">
+                    @* <div asp-validation-summary="All"></div> *@
+                    <div class="form-floating py-1 col-12">
+                        <select id="productSelect" asp-for="@Model.InventoryProduct.ProductId"  asp-items="@Model.ProductList"
+                                class="form-select border shadow">
+                            <option disabled selected>--Select Product Name--</option>
+                        </select>
+                        <label class="ms-2">Product Brand</label>
+                        @* <span asp-validation-for="Product" class="text-danger"></span> *@
+                    </div>
+
+                    <div class="form-floating py-1 col-12">
+                        <select id="productPackagingSelect" asp-for="@Model.InventoryProduct.ProductPackagingId" asp-items="@Model.ProductPackagingList"
+                                class="form-select border shadow">
+                            <option disabled selected>--Select Packaging Type--</option>
+                        </select>
+                        <label class="ms-2">Product Type</label>
+                        <span asp-validation-for="InventoryProduct.ProductPackaging" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating py-1 col-12">
+                        <input asp-for="InventoryProduct.Quantity" class="form-control border shadow" />
+                        <label asp-for="InventoryProduct.Quantity" class="ms-2"></label>
+                        <span asp-validation-for="InventoryProduct.Quantity" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating py-1 col-12">
+                        <input asp-for="InventoryProduct.WholePrice" id="wholePrice" class="form-control border shadow" />
+                        <label asp-for="InventoryProduct.WholePrice" class="ms-2"></label>
+                        <span asp-validation-for="InventoryProduct.WholePrice" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating py-1 col-12">
+                        <input disabled id="perPiecePrice" class="form-control border shadow" />
+                        <label asp-for="InventoryProduct.PerPiecePrice" class="ms-2"></label>
+                    </div>
+
+                    <div class="form-floating py-1 col-12">
+                        <input asp-for="InventoryProduct.ExpirationDate" class="form-control border shadow" />
+                        <label asp-for="InventoryProduct.ExpirationDate" class="ms-2"></label>
+                        <span asp-validation-for="InventoryProduct.ExpirationDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating py-1 col-12">
+                        <input asp-for="InventoryProduct.DatePurchased" class="form-control border shadow" />
+                        <label asp-for="InventoryProduct.DatePurchased" class="ms-2"></label>
+                        <span asp-validation-for="InventoryProduct.DatePurchased" class="text-danger"></span>
+                    </div>
+                   
+
+                    <div class="row pt-2">
+                        <div class="col-6 col-md-3">
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="bi bi-check-circle"></i> Update
+                            </button>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <a asp-controller="InventoryProduct" asp-action="Index" class="btn btn-secondary w-100">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}

@@ -1,0 +1,129 @@
+﻿@using POS.Web.ViewModel
+@model ProductVm
+
+<div class="w-100 card border-0 p-4">
+    <div class="card-header bg-success bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">Create Product</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body border p-4">
+        <form method="post" class="row" enctype="multipart/form-data">
+            <div class="p-3">
+                @* <div asp-validation-summary="All"></div>  *@
+                <div class="form-floating py-1 col-12">
+                    <select id="productBrandSelect" asp-items="@Model.ProductBrandList"
+                            class="form-select border shadow">
+                        <option disabled selected>--Select Brand Name--</option>
+                    </select>
+                    <label class="ms-2">Product Brand</label>
+                    @* <span asp-validation-for="Product" class="text-danger"></span> *@
+                </div>
+                <div class="form-floating py-1 col-12">
+                    <select asp-for="@Model.Product.Vatable"
+                            class="form-select border shadow">
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                    <label class="ms-2">Product Vatable</label>
+                    @* <span asp-validation-for="Product" class="text-danger"></span> *@
+                </div>
+
+                <div class="form-floating py-1 col-12">
+                    <select id="productBrandTypeSelect" asp-for="@Model.Product.ProductBrandTypeId" asp-items="@Model.ProductBrandTypeList"
+                            class="form-select border shadow">
+                        <option disabled selected>--Select Type Name--</option>
+                    </select>
+                    <label class="ms-2">Product Type</label>
+                    <span asp-validation-for="Product.ProductBrandTypeId" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="Product.BarCode" class="form-control border shadow" />
+                    <label asp-for="Product.BarCode" class="ms-2"></label>
+                    <span asp-validation-for="Product.BarCode" class="text-danger"></span>
+                </div>
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="Product.ProductDescription" class="form-control border shadow" />
+                    <label asp-for="Product.ProductDescription" class="ms-2"></label>
+                    <span asp-validation-for="Product.ProductDescription" class="text-danger"></span>
+                </div>
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="Product.ReorderLevel" class="form-control border shadow" />
+                    <label asp-for="Product.ReorderLevel" class="ms-2"></label>
+                    <span asp-validation-for="Product.ReorderLevel" class="text-danger"></span>
+                </div>
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="Product.WholeSellingPrice" class="form-control border shadow" />
+                    <label asp-for="Product.WholeSellingPrice" class="ms-2"></label>
+                    <span asp-validation-for="Product.WholeSellingPrice" class="text-danger"></span>
+                </div>
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="Product.PerPieceSellingPrice" class="form-control border shadow" />
+                    <label asp-for="Product.PerPieceSellingPrice" class="ms-2"></label>
+                    <span asp-validation-for="Product.PerPieceSellingPrice" class="text-danger"></span>
+                </div>
+             
+              
+            @*     <div class="form-floating py-1 col-12">
+                    <input asp-for="ImageUrl" hidden class="form-control border shadow" />
+                    <input asp-for="Image" class="form-control border shadow" />
+                    <label asp-for="ImageUrl" class="ms-2 "></label>
+                    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                </div> *@
+                <div class="row pt-2">
+                    <div class="col-6 col-md-3">
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-check-circle"></i> Create
+                        </button>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <a asp-controller="Product" asp-action="Index" class="btn btn-secondary w-100">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+
+        var productBrandTypes = @Html.Raw(Json.Serialize(Model.ProductBrandTypeList))
+         console.log(productBrandTypes)
+
+            $('#productBrandSelect').change(function () {
+           
+            var productBrandId = $(this).val();
+                $('#productBrandTypeSelect').empty().append('<option disabled selected>--Select Brand Name--</option>');
+
+            // Filter the brands based on the selected product type
+            var filteredBrandTypes = productBrandTypes.filter(function (brand) {
+                    
+                    return brand.productBrandId == productBrandId;
+            });
+
+                console.log(filteredBrandTypes)
+               
+
+            // Populate the brand select with filtered results
+                $.each(filteredBrandTypes, function (index, brandType) {
+                    $('#productBrandTypeSelect').append($('<option>', {
+                    value: brandType.value,
+                    text: brandType.text
+                }));
+            });
+        });
+    });
+</script>

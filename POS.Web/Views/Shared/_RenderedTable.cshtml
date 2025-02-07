@@ -1,0 +1,78 @@
+﻿@model POS.Web.ViewModel.Inventory.InventoryProductVmForIndex
+<div id="_tableList">
+    <div class="table-responsive" style="max-height: 400px; overflow: auto;">
+        <table class="table table-bordered table-striped">
+            <thead class="text-nowrap">
+                <tr>
+
+                    <th>
+                        Barcode
+                    </th>
+                    <th>Product Description</th>
+                    <th>Quantity</th>
+                    <th>WholePrice</th>
+                    <th>PerPiece</th>
+                    <th></th>
+                    @* <th>Packaging Type</th> *@
+
+                    @*    <th>Whole Selling Price</th>
+                    <th>PerPiece Selling Price</th> *@
+                    @*    <th>Date Purchased</th>
+                    <th>Date Expiration</th> *@
+                    @* <th></th> *@
+                </tr>
+            </thead>
+            <tbody class="text-nowrap position-relative">
+
+                @foreach (var obj in Model.InventoryProductVmList)
+
+                {
+
+                    <tr>
+
+                        <td>@obj?.InventoryProductDto.Product.BarCode</td>
+                        <td>@obj?.InventoryProductDto.Product.ProductDescription</td>
+                        <td>@obj?.InventoryProductDto.Quantity</td>
+                        <td>@obj?.InventoryProductDto.Product.WholeSellingPrice</td>
+                        <td>@obj?.InventoryProductDto.Product.PerPieceSellingPrice</td>
+                        @* <td>@obj?.InventoryProduct.ProductPackaging.PackagingType</td> *@
+                        <td>
+                            <div class="w-75 btn-group" role="group">
+                                <button @(obj?.InventoryProductDto.Quantity <= 0 ? "Disabled" : "") type = "button" onclick = 'fnLoadItemList(@Html.Raw(Json.Serialize(obj?.InventoryProductDto)))' class="btn btn-success btn-block">
+                                    Add
+                                </button>
+                            </div>
+                        </td>
+
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @* paging *@
+    <div>
+        <div class="d-flex mx-5 justify-content-end align-items-center">
+            <div>Rows per page: </div>
+            <div>
+                <select class="form-select mx-2" id="rowsPerPages" onchange='rowsPerPage()' asp-for="pageSize">
+                    <option>10</option>
+                    <option>20</option>
+                    <option>30</option>
+                </select>
+            </div>
+            <div class="mx-2"> @(Model.pageNumber) of @(Math.Ceiling((double)Model.totalRecords / (double)Model.pageSize))</div>
+            <button id="prevPages" onclick='prevPage(@Html.Raw(Json.Serialize(Model.pageNumber)))'
+            @(Model.pageNumber == 1 ? "disabled" : "")
+                    class="btn btn-outline-primary px-3 mx-2">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <button id="nextPages" onclick='nextPage(@Html.Raw(Json.Serialize(Model.pageNumber)))'
+            @(Model.pageNumber * Model.pageSize >= Model.totalRecords ? "disabled" : "")
+                    class="btn btn-outline-primary px-3 mx-2">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+</div>
