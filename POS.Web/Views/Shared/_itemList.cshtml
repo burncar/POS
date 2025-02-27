@@ -41,6 +41,9 @@
                         <table class="table table-bordered table-striped">
                             <thead class="text-nowrap">
                                 <tr>
+                                <th @(Model.IsDiscount ? "hidden" : "")>
+
+                                    </th>
                                 <th @(Model.IsDiscount ? "" : "hidden") id="DiscountTH">
                                     <input @(Model.CheckAll ? "checked" : false) type="checkbox" id="selectAll" onclick="toggleCheckboxes(this)" />
                                     <label for="selectAll">All</label>

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using POS.Application.Services.Interfaces;
+using POS.Domain.Entitties;
 using POS.Web.ViewModel;
+using POS.Web.ViewModel.Rendered;
 
 namespace POS.Web.Controllers
 {
@@ -42,6 +44,70 @@ namespace POS.Web.Controllers
             ReprintRecieptVmForIndex dataIndex = new ReprintRecieptVmForIndex();
             dataIndex.ProductRendered = data;
             return View(dataIndex);
+        }
+
+        public IActionResult Update(int ReprintRecieptId)
+        {
+            if(ReprintRecieptId == 0)
+            {
+                return NotFound();
+            }
+            var data = _productRenderedService.GetProductRenderedByIdList(ReprintRecieptId);
+
+            var jsonData = new ProductRenderedVM
+            {
+                Id = data.FirstOrDefault().Id,
+                ProductRendered = (List<Domain.Entitties.ProductRendered>)data
+
+            };
+
+            return View(jsonData);
+        }
+
+        [HttpPost]
+        public IActionResult Update(int ReprintRecieptId, ProductRenderedVM vm)
+        {
+            if (ReprintRecieptId == 0)
+            {
+                return NotFound();
+            }
+            //var data = _productRenderedService.GetProductRenderedByIdList(ReprintRecieptId);
+
+            foreach(var v in vm.ProductRendered)
+            {
+                if(v.BigQuantity > 0)
+                {
+                    _productRenderedService.UpdateProductRendered(v);
+                }
+               
+            }
+            TempData["success"] = "The Product has been Updated successfully.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Delete(int ReprintRecieptId)
+        {
+            ProductRendered? obj = _productRenderedService.GetProductRenderedById(ReprintRecieptId);
+            if (obj is null)
+            {
+                return RedirectToAction("Error", "Home");
+            }
+            return View(obj);
+        }
+        [HttpPost]
+        public IActionResult Delete(ProductRendered obj)
+        {
+            bool deleted = _productRenderedService.DeleteProductRendered(obj.Id);
+            if (deleted)
+            {
+                TempData["success"] = "The Product has been deleted successfully.";
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                TempData["error"] = "Failed to delete the rendered product.";
+            }
+            return View();
         }
 
     }

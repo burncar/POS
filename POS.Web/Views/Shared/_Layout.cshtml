@@ -65,9 +65,21 @@
                              
                             </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="ReprintReciept" asp-action="Index">Reprint Reciept</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="manageProductsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Return Products
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="manageProductsDropdown">
+                                <li>
+                                    <a class="nav-link" asp-area="" asp-controller="ReprintReciept" asp-action="Index">Returns</a>
+                                </li>
+                                <li>
+                                    <a class="nav-link" asp-area="" asp-controller="ReprintReciept" asp-action="Index">Reprint Receipt</a>
+                                </li>
+
+                            </ul>
                         </li>
+                      
                     </ul>
                     <div class="p-2 border rounded">
                         <div class="form-check form-switch" id="btnSwitch">

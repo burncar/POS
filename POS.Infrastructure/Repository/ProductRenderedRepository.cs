@@ -34,11 +34,12 @@ namespace POS.Infrastructure.Repository
 
         public IEnumerable<ProductRendered> ReprintReceipt()
         {
-            var rendered = _db.ProductRendereds.OrderByDescending(a => a.Id);
+            var rendered = _db.ProductRendereds;
             if (rendered.Any())
             {
-               return rendered.Include(a => a.ProductRenderedDiscount);
+               return rendered.Include(a => a.ProductRenderedDiscount).OrderByDescending(a => a.Id);
             }
+            
            return  null;
         }
 

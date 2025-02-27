@@ -12,6 +12,7 @@ namespace POS.Application.Services.Interfaces
         IEnumerable<ProductRendered> GetAllProductRendereds();
         IEnumerable<ProductRendered> GetAllReprintReciept();
         ProductRendered GetProductRenderedById(int id);
+        IEnumerable<ProductRendered> GetProductRenderedByIdList(int id);
         void CreateProduct(ProductRendered productRendered);
 
         void CreateProductRenderedMultiple(IEnumerable<ProductRendered> productRendered);

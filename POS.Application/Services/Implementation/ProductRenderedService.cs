@@ -57,7 +57,7 @@ namespace POS.Application.Services.Implementation
         {
             try
             {
-                ProductRendered? objFromDb = _unitOfWork.ProductRendered.Get(u => u.ProductId == id);
+                ProductRendered? objFromDb = _unitOfWork.ProductRendered.Get(u => u.Id == id);
                 if (objFromDb is not null)
                 {
                     //if (!string.IsNullOrEmpty(objFromDb.ImageUrl))
@@ -94,8 +94,13 @@ namespace POS.Application.Services.Implementation
 
         public ProductRendered GetProductRenderedById(int id)
         {
+            return _unitOfWork.ProductRendered.Get(u => u.Id == id);
+        }
+
+        public IEnumerable<ProductRendered> GetProductRenderedByIdList(int id)
+        {
             // return _unitOfWork.ProductRendered.Get(u => u.ProductId == id, includeProperties: "ProductPackaging, Product");
-            return _unitOfWork.ProductRendered.Get(u => u.ProductId == id);
+            return _unitOfWork.ProductRendered.GetAll(u => u.ProductRenderedId == id);
         }
 
         public int GetProductRenderedId()

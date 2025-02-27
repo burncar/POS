@@ -22,7 +22,8 @@ namespace POS.Domain.Entitties
         public Product Product { get; set; }
         [NotMapped]
         public bool Vatable { get; set; } //this id is from product 
-        [NotMapped]
+
+        //[NotMapped]
         public ProductRenderedDiscount ProductRenderedDiscount { get; set; }
 
         public int Id { get; set; }
