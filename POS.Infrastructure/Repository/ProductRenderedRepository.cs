@@ -37,7 +37,9 @@ namespace POS.Infrastructure.Repository
             var rendered = _db.ProductRendereds;
             if (rendered.Any())
             {
-               return rendered.Include(a => a.ProductRenderedDiscount).OrderByDescending(a => a.Id);
+               var r =  rendered.Include(a => a.ProductRenderedDiscount).OrderBy(a => a.ProductRenderedId);
+                return r;
+
             }
             
            return  null;

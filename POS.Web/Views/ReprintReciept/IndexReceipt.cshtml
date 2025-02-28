@@ -1,0 +1,220 @@
+﻿@using POS.Web.ViewModel.Rendered
+@model ProductRenderedPrintVM
+
+<div class="w-100 card border-0 p-1">
+    <div class="card-header  bg-success bg-gradient ml-0 py-1">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-1">Product Brand List</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body border p-2">
+        <div class="row pb-3">
+
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-6">
+                        @* <a id="btnSearch" class="btn btn-primary"> *@
+                        @*     <i class="bi bi-plus-circle"></i> Print *@
+                        @* </a> *@
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+        </div>
+        <div class="table-responsive" style="max-height: 400px; overflow: auto;">
+            <table class="table table-bordered table-striped">
+                <thead class="text-nowrap">
+                    <tr>
+                        <th></th>
+                        <th>Description</th>
+
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Discount</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody class="text-nowrap position-relative">
+                   
+                    @* @for (int i=0; i < Model?.ProductRenderedPrintDto?.Count(); i++) *@
+                    @foreach(var m in Model.ProductRenderedPrintDto)
+                    {
+                        <tr>
+                            <td>
+                                @* <a id="btnSearch" class="btn btn-primary"> *@
+                                @*     <i class="bi bi-plus-circle"></i> Print *@
+                                @* </a> *@
+                                <button id="@($"btnToggle{m.ProductRenderedId}")"  onclick="toggleRow(@m.ProductRenderedId)">
+                                    UnHide</button>
+                                
+                            </td>
+                        </tr>
+                        
+                        @foreach(var q in m.ProductRendereds)
+                        {
+
+                            <tr class="@($"tr_hide{m.ProductRenderedId}")" hidden>
+                                <td></td>
+                                <td>@q.Description</td>
+                                <td>@q.BigQuantity</td>
+                                <td>@q.PerItemPrice</td>
+                                <td>@q.Discount</td>
+
+                            </tr>
+
+                        }
+                        
+                        <tr>
+                            <td style="text-align:end">
+                                <a id="btnSearch" class="btn btn-primary">
+                                    <i class="bi bi-plus-circle"></i> Print
+                                </a>
+                                Invoice No.
+                            </td>
+                            <td>@m.ProductRenderedId</td>
+                         
+                            <td>@m.TotalBigQuantity</td>
+                            <td>@m.TotalPrice</td>
+                            <td>@m.TotalDiscount</td>
+                            <td>@m.Total</td>
+
+                        </tr>
+
+                     
+
+                     
+
+                            @* <tr> *@
+                            @*     <td>Total Net Pay</td> *@
+                            @*     <td></td> *@
+                            @*     <td> *@
+                            @*         @(Model.ProductRendered.Sum(x => x.TotalItemPrice * x.BigQuantity) *@
+                            @*             - Model.ProductRendered.Sum(x => x.Discount)) *@
+                            @*     </td> *@
+                            @*     <td></td> *@
+                            @* </tr> *@
+             
+                    }
+                </tbody>
+            </table>
+        </div>
+        @* paging *@
+        <div>
+            <div class="d-flex mx-5 justify-content-end align-items-center">
+                <div>Rows per page: </div>
+                <div>
+                    <select class="form-select mx-2" id="rowsPerPage" asp-for="pageSize">
+                        <option>10</option>
+                        <option>20</option>
+                        <option>30</option>
+                    </select>
+                </div>
+                <div class="mx-2"> @(Model.pageSize * Model.pageNumber >= Model.totalRecords ? " " + Model.totalRecords : " " + Model.pageSize * Model.pageNumber) of @(Model.totalRecords)</div>
+                <button id="prevPage"
+                @(Model.pageNumber == 1 ? "disabled" : "")
+                        class="btn btn-outline-primary px-3 mx-2">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button id="nextPage"
+                @(Model.pageNumber * Model.pageSize >= Model.totalRecords ? "disabled" : "")
+                        class="btn btn-outline-primary px-3 mx-2">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+        function toggleRow(id) {
+         
+            var tr_hide = $(`.tr_hide${id}`);
+            var btnToggle = $(`#btnToggle${id}`);
+            if (btnToggle.text() == "UnHide") {
+                btnToggle.text("Hide");
+                tr_hide.removeAttr('Hidden').show();
+               console.log(id);
+            } else {
+                btnToggle.text("UnHide");
+                tr_hide.hide();
+               console.log(id);
+            }
+        }
+</script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+
+        // var searchStringModel = @Html.Raw(Json.Serialize(Model.searchString));
+        // console.log(searchStringModel);
+        // if (searchStringModel != "null") {
+        //     $('#searchString').val(searchStringModel);
+        //     }
+
+      
+        // $('#btnToggle').click(function(){
+        //     var id = $(this).data('id');
+        //     var tr_hide = $(`#tr_hide${id}`);
+        //     var btnToggle = $(`#btnToggle${id}`);
+        //     if (btnToggle.text() == "UnHide") {
+        //         btnToggle.text("Hide");
+        //         tr_hide.removeAttr('Hidden').show();
+        //     } else {
+        //         btnToggle.text("UnHide");
+        //         tr_hide.hide();
+        //     }
+        // });
+        // function UnHide(){
+        //     if(btnToggle.val == "UnHide"){
+        //         btnToggle.setText = "Hide";
+        //         tr_hide.Show();
+        //     }else{
+        //         btnToggle.setText = "UnHide";
+        //         tr_hide.hide();
+        //     }
+        // }
+
+        $('#rowsPerPage').change(function() {
+            var selectedRows = $(this).val();
+            // Redirect to the index action with the selected rows per page
+            window.location.href = '@Url.Action("IndexReciept", "ReprintReciept")?pageSize=' + selectedRows + '&searchString=' + $('#searchString').val();
+        });
+
+        // Optional: Handling Prev and Next buttons
+        $('#prevPage').click(function() {
+            // Logic to handle going to the previous page
+            // You might want to update a pageNumber variable or similar
+            var currentPage = parseInt(getUrlParameter('pageNumber')) || 1;
+            window.location.href = '@Url.Action("IndexReciept", "ReprintReciept")?pageNumber=' + (currentPage - 1) + '&pageSize=' + $('#rowsPerPage').val() + '&searchString=' + $('#searchString').val();
+        });
+
+        $('#nextPage').click(function() {
+            // Logic to handle going to the next page
+            var currentPage = parseInt(getUrlParameter('pageNumber')) || 1;
+            window.location.href = '@Url.Action("IndexReciept", "ReprintReciept")?pageNumber=' + (currentPage + 1) + '&pageSize=' + $('#rowsPerPage').val() + '&searchString=' + $('#searchString').val();
+        });
+
+        $('#btnSearch').click(function () {
+            // Logic to handle going to the next page
+            var currentPage = parseInt(getUrlParameter('pageNumber')) || 1;
+            window.location.href = '@Url.Action("IndexReciept", "ReprintReciept")?pageNumber=' + (1) + '&pageSize=' + $('#rowsPerPage').val() + '&searchString=' + $('#searchString').val();
+        });
+
+    });
+
+    // Function to get URL parameters
+    function getUrlParameter(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        var results = regex.exec(location.search);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+</script>

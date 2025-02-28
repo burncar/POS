@@ -35,7 +35,7 @@
             <table class="table table-bordered table-striped">
                 <thead class="text-nowrap">
                     <tr>
-
+                        <th>Id</th>
                         <th>Product Type</th>
 
                         <th></th>
@@ -48,12 +48,12 @@
                         {
 
                             <tr>
-
+                                <td>@obj?.ProductRenderedId</td>
                                 <td>@obj?.Description</td>
 
                                 <td>
                                     <div class="w-75 btn-group" role="group">
-                                        <a asp-controller="ReprintReciept" asp-action="Update" asp-route-ReprintRecieptId="@obj.Id"
+                                        <a asp-controller="ReprintReciept" asp-action="Update" asp-route-ReprintRecieptId="@obj.ProductRenderedId"
                                            class="btn btn-success mx-2">
                                             <i class="bi bi-pencil-square"></i> Edit
                                         </a>

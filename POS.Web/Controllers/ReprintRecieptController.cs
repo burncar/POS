@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using POS.Application.Services.Interfaces;
 using POS.Domain.Entitties;
+using POS.Web.Models.DTO;
 using POS.Web.ViewModel;
 using POS.Web.ViewModel.Rendered;
 
@@ -40,10 +41,85 @@ namespace POS.Web.Controllers
         }
         public IActionResult Index()
         {
-            var data = _productRenderedService.GetAllReprintReciept();
+            var data = _productRenderedService.GetAllReprintReciept().OrderByDescending(x => x.ProductRenderedId); 
             ReprintRecieptVmForIndex dataIndex = new ReprintRecieptVmForIndex();
             dataIndex.ProductRendered = data;
             return View(dataIndex);
+        }
+        public IActionResult IndexReceipt()
+        {
+            var data = _productRenderedService.GetAllReprintReciept().OrderByDescending(x => x.ProductRenderedId); ; ;
+              
+            ReprintRecieptVmForIndex dataIndex = new ReprintRecieptVmForIndex();
+            dataIndex.ProductRendered = data;
+
+            var jsonData = dataIndex.ProductRendered.GroupBy(x => x.ProductRenderedId)
+               
+                .Select(g => new
+                {
+                    ProductRenderedId = g.Key,
+                    TotalBigQuantity= g.Sum(x=>x.BigQuantity),
+                    TotalPrice = g.Sum(x => x.TotalItemPrice),
+                    TotalDiscount = g.Sum(x => x.Discount),
+                    ProductRendered = g
+                    .GroupBy(x => x.ProductId)
+                    .Select(x => x.First())
+                    .Select(x=> new
+                    {
+                        x.Description,
+                        x.Id,
+                        x.Barcode,
+                        x.SmallQuantity,
+                        x.BigQuantity,
+                        x.PerItemPrice,
+                        x.TotalItemPrice,
+                        x.Discount,
+                        x.ProductId,
+                        x.ProductRenderedId,
+                        x.ProductRenderedDiscount
+                    })
+                }).Distinct();
+
+            var results = new ProductRenderedPrintVM();
+            
+            foreach (var item in jsonData)
+            {
+               
+                var total = item.TotalPrice - item.TotalDiscount;
+                var result = new ProductRenderedPrintDto
+                {
+                    ProductRenderedId = item.ProductRenderedId,
+                    TotalBigQuantity = item.TotalBigQuantity,
+                    TotalPrice = item.TotalPrice,
+                    TotalDiscount = item.TotalDiscount,
+                    Total = total,
+
+                };
+               
+                foreach (var product in item.ProductRendered)
+                {
+                    var prod = new ProductRendered
+                   {
+                       Description = product.Description,
+                       Id = product.Id,
+                       Barcode = product.Barcode,
+                       SmallQuantity = product.SmallQuantity,
+                       BigQuantity = product.BigQuantity,
+                       PerItemPrice = product.PerItemPrice,
+                       TotalItemPrice = product.TotalItemPrice,
+                       Discount = product.Discount,
+                       ProductId = product.ProductId,
+                       ProductRenderedId = product.ProductRenderedId,
+                       ProductRenderedDiscount = product.ProductRenderedDiscount
+                   };
+                     result.ProductRendereds.Add(prod);
+                }
+
+
+                results.ProductRenderedPrintDto.Add(result);
+            }
+            
+            return View(results);
         }
 
         public IActionResult Update(int ReprintRecieptId)
@@ -54,10 +130,12 @@ namespace POS.Web.Controllers
             }
             var data = _productRenderedService.GetProductRenderedByIdList(ReprintRecieptId);
 
+            var lst = new List<ProductRendered>();
+            lst.AddRange(data);
             var jsonData = new ProductRenderedVM
             {
-                Id = data.FirstOrDefault().Id,
-                ProductRendered = (List<Domain.Entitties.ProductRendered>)data
+                Id = lst.FirstOrDefault().Id,
+                ProductRendered = lst,
 
             };
 
