@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -25,10 +26,21 @@ namespace POS.Domain.Entitties
             get { return Math.Round(_PerPiecePrice, 2); }
             set { _PerPiecePrice = Math.Round(value, 2); }
         }
-     
-        public DateTime ExpirationDate { get; set; }
-        public DateTime DatePurchased { get; set; }
+      
 
+        private DateTime _expirationDate;
+        public DateTime ExpirationDate
+        {
+            get => _expirationDate;
+            set => _expirationDate = DateTime.SpecifyKind(value, DateTimeKind.Utc);
+        }
+
+        private DateTime _datePurchased;
+        public DateTime DatePurchased
+        {
+            get => _datePurchased;
+            set => _datePurchased = DateTime.SpecifyKind(value, DateTimeKind.Utc);
+        }
         private double _productQuantity;
         public double Quantity
         {
