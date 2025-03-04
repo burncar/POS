@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using POS.Domain.Entitties;
 using System;
@@ -28,6 +29,18 @@ namespace POS.Infrastructure.Data
         DbSet<ProductDiscountType> productDiscountTypes { get; set; }
         DbSet<ProductRenderedDiscount> ProductRenderedDiscount { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<IdentityRole>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnType("VARCHAR(450)");
+                entity.Property(e => e.Name).HasColumnType("VARCHAR(256)");
+                entity.Property(e => e.NormalizedName).HasColumnType("VARCHAR(256)");
+                entity.Property(e => e.ConcurrencyStamp).HasColumnType("TEXT");
+            });
+        }
     }
+
 }
